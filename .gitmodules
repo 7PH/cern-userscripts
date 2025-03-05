@@ -1,0 +1,3 @@
+[submodule "external/userscript-gitlab-auto-collapse-threads"]
+	path = external/userscript-gitlab-auto-collapse-threads
+	url = https://github.com/7PH/userscript-gitlab-auto-collapse-threads.git
