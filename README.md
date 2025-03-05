@@ -2,13 +2,13 @@
 
 Userscripts to make your life easier when working @t CERN
 
-## Pre-requesite
+## Prerequesite
 
 Ensure you have `TamperMonkey` or `GreaseMonkey` installed in your browser.
 
 ## Install userscripts
 
-Simply click on these links to install individual userscripts. You will be prompted to update them when a new version is out.
+Open the following links in new tabs to install each individual userscripts. `TamperMonkey`/`GreaseMonkey` will automatically check updates for you and offer you to upgrade.
 
 - [Gitlab (auto-collapse threads on resolve)](https://github.com/7PH/userscript-gitlab-auto-collapse-threads/raw/master/gitlab-auto-collapse-threads.user.js)
 - [EDH Absence Planning Fix (show month labels, auto-select start of the week, auto-submit on first page load)](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/edh.cern.ch/fix-absence-overview.user.js)
