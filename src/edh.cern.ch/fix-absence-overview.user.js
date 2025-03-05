@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Fix AbsenceOverview
+// @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
 // @version      2025-03-05
 // @description  Fixes issues with the AbsenceOverview page.
@@ -11,8 +11,8 @@
 // @homepageURL  https://github.com/7PH/cern-userscripts
 // @source       https://github.com/7PH/cern-userscripts
 // @supportURL   https://github.com/7PH/cern-userscripts/issues
-// @updateURL    https://raw.githubusercontent.com/7PH/cern-userscripts/master/src/edh-fix-absence-planning.user.js
-// @downloadURL  https://raw.githubusercontent.com/7PH/cern-userscripts/master/src/edh-fix-absence-planning.user.js
+// @updateURL    https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/edh.cern.ch/fix-absence-overview.user.js
+// @downloadURL  https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/edh.cern.ch/fix-absence-overview.user.js
 // ==/UserScript==
 
 /**
