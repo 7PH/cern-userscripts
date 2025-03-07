@@ -93,9 +93,10 @@
         if (!firstRow) {
             return;
         }
+        
+        const cellWidth = firstRow.cells[1].firstElementChild.width;
 
-        const labelRow = firstRow.cloneNode(true);
-        const cellWidth = labelRow.cells[1].firstElementChild.width;
+        const dayLabelRow = firstRow.cloneNode(true);
 
         const fromDate = getDateFromInput(SELECTORS.FROM_DATE_INPUT);
         const toDate = getDateFromInput(SELECTORS.TO_DATE_INPUT);
@@ -104,9 +105,10 @@
             return;
         }
 
-        const elements = [];
+        // Build month label nodes
+        const monthLabelNodes = [];
+        const monthLabelRow = firstRow.cloneNode(true);
         let currentDate = new Date(fromDate);
-
         while (currentDate < toDate) {
             const div = document.createElement('div');
             div.style.display = 'inline-block';
@@ -126,19 +128,53 @@
             div.innerText = title;
             div.title = title;
 
-            elements.push(div);
+            monthLabelNodes.push(div);
 
             // Move to the 1st of the next month
             currentDate.setMonth(currentDate.getMonth() + 1, 1);
         }
+        monthLabelRow.cells[1].innerHTML = '';
+        monthLabelRow.cells[1].append(...monthLabelNodes);
 
-        // Clear existing content
-        labelRow.cells[1].innerHTML = '';
+        // Build day label nodes
+        const dayLabelNodes = [];
+        currentDate = new Date(fromDate);
+        while (currentDate <= toDate) {
+            const div = document.createElement('div');
 
-        // Append new elements
-        labelRow.cells[1].append(...elements);
+            const isFirst = currentDate.getDate() === 1;
+            const twoDigits = currentDate.getDate() >= 10;
 
-        table.tBodies[0].insertBefore(labelRow, firstRow);
+            if (currentDate.getDate() % 2 !== 0 || currentDate.getDate() < 10) {
+                div.innerText = currentDate.getDate();
+                div.style.width = `${cellWidth}px`;
+                div.style.height = '24px';
+                div.style.display = 'inline-flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'center';
+                div.style.fontSize = twoDigits ? '12px' : '14px';
+                div.style.fontWeight = isFirst ? 'bold' : 'normal';
+                div.style.borderLeft = `1px solid ${isFirst ? 'black' : 'gray'}`;
+                div.style.borderRight = `1px solid ${isFirst ? 'black' : 'gray'}`;
+            } else {
+                div.style.display = 'inline-block';
+                div.style.width = `${cellWidth}px`;
+                div.style.height = '24px';
+                div.style.verticalAlign = 'bottom';
+            }
+
+            dayLabelNodes.push(div);
+
+            // +1 day
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        dayLabelRow.cells[1].innerHTML = '';
+        dayLabelRow.cells[1].append(...dayLabelNodes);
+
+        table.tBodies[0].insertBefore(monthLabelRow, firstRow);
+        table.tBodies[0].insertBefore(dayLabelRow, firstRow);
+        // Remove the original first row
+        table.tBodies[0].removeChild(firstRow);
     }
 
     if (!hasResults()) {
