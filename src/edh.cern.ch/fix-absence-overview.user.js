@@ -163,6 +163,11 @@
                 div.style.verticalAlign = 'bottom';
             }
 
+            // If day is today change its background color
+            if (currentDate.toDateString() === new Date().toDateString()) {
+                div.style.backgroundColor = 'rgb(255 237 204)';
+            }
+
             dayLabelNodes.push(div);
 
             // +1 day
