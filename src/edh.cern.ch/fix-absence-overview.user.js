@@ -19,6 +19,7 @@
  * - Show month labels in the table
  * - Adjust FROMDATE to the start of the week
  * - Trigger submission if no results are shown (never show an empty page)
+ * - Show a shorter version of colleague's names
  */
 
 (function () {
@@ -28,8 +29,11 @@
         REPORT_TABLE: 'table#ReportBody',
         FROM_DATE_INPUT: 'input#FROMDATE',
         TO_DATE_INPUT: 'input#TODATE',
-        SPINNER_BUTTON: '#SpinningThingy'
+        SPINNER_BUTTON: '#SpinningThingy',
+        PERSON_NAME: 'td.person-name'
     };
+
+    const LAST_NAME_MAX_LENGTH = 8;
 
     function getElement(selector) {
         return document.querySelector(selector);
@@ -182,11 +186,32 @@
         table.tBodies[0].removeChild(firstRow);
     }
 
+    function fixPersonNames() {
+        for (const td of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
+            const [lastNameFull, firstNameFull] = td.innerText.trim().split(',');
+
+            // Display full last name if short, or only first last names otherwise
+            let lastName = '';
+            let i = 0;
+            const lastNames = lastNameFull.split(' ');
+            while (lastName.length < LAST_NAME_MAX_LENGTH && i < lastNames.length) {
+                lastName += lastNames[i] + ' ';
+                i ++;
+            }
+
+            const [firstName] = firstNameFull.trim().split(' ');
+
+            td.title = `${firstNameFull} ${lastNameFull}`;
+            td.innerHTML = `${firstName} ${lastName}`;
+        }
+    }
+
     if (!hasResults()) {
         adjustFromDateToWeekStart();
         triggerSubmission();
     } else {
         addTableLabels();
+        fixPersonNames();
     }
 
 })();
