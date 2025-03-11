@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN JIRA Fix
 // @namespace    https://github.com/7PH
-// @version      2025-03-05
+// @version      0.0.1
 // @description  Ensure the comment input is where it's supposed to be
 // @author       7PH (https://github.com/7PH)
 // @match        https://its.cern.ch/jira/browse/*-*
