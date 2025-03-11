@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
-// @version      0.0.1
+// @version      0.1.0
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
 // @match        https://edh.cern.ch/Document/Claims/AbsenceOverview
@@ -97,7 +97,7 @@
         if (!firstRow) {
             return;
         }
-        
+
         const cellWidth = firstRow.cells[1].firstElementChild.width;
 
         const dayLabelRow = firstRow.cloneNode(true);
@@ -148,8 +148,9 @@
 
             const isFirst = currentDate.getDate() === 1;
             const twoDigits = currentDate.getDate() >= 10;
+            const isToday = currentDate.toDateString() === new Date().toDateString();
 
-            if (currentDate.getDate() % 2 !== 0 || currentDate.getDate() < 10) {
+            if (currentDate.getDate() % 2 !== 0 || currentDate.getDate() < 10 || currentDate.toISOString() === fromDate.toISOString() || currentDate.toISOString() === toDate.toISOString()) {
                 div.innerText = currentDate.getDate();
                 div.style.width = `${cellWidth}px`;
                 div.style.height = '24px';
@@ -157,7 +158,7 @@
                 div.style.alignItems = 'center';
                 div.style.justifyContent = 'center';
                 div.style.fontSize = twoDigits ? '12px' : '14px';
-                div.style.fontWeight = isFirst ? 'bold' : 'normal';
+                div.style.fontWeight = isToday ? 'bold' : 'normal';
                 div.style.borderLeft = `1px solid ${isFirst ? 'black' : 'gray'}`;
                 div.style.borderRight = `1px solid ${isFirst ? 'black' : 'gray'}`;
             } else {
@@ -168,7 +169,7 @@
             }
 
             // If day is today change its background color
-            if (currentDate.toDateString() === new Date().toDateString()) {
+            if (isToday) {
                 div.style.backgroundColor = 'rgb(255 237 204)';
             }
 
@@ -187,6 +188,9 @@
     }
 
     function fixPersonNames() {
+        const anyTd = document.querySelector(SELECTORS.PERSON_NAME);
+        const width = anyTd.clientWidth;
+
         for (const td of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
             const [lastNameFull, firstNameFull] = td.innerText.trim().split(',');
 
@@ -203,6 +207,26 @@
 
             td.title = `${firstNameFull} ${lastNameFull}`;
             td.innerHTML = `${firstName} ${lastName}`;
+            td.width = `${width}px`; // Do not change the width
+
+            // Toggle-select single-person view on click
+            td.onclick = () => {
+                if (td.dataset.selected === '1') {
+                    td.dataset.selected = '0';
+                    for (const otherTd of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
+                        otherTd.parentElement.style.display = '';
+                    }
+                } else {
+                    td.dataset.selected = '1';
+                    for (const otherTd of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
+                        if (td === otherTd) {
+                            continue;
+                        }
+                        otherTd.parentElement.style.display = 'none';
+                    }
+                }
+            }
+            td.style.cursor = 'pointer';
         }
     }
 
