@@ -11,8 +11,8 @@
 // @homepageURL  https://github.com/7PH/cern-userscripts
 // @source       https://github.com/7PH/cern-userscripts
 // @supportURL   https://github.com/7PH/cern-userscripts/issues
-// @updateURL    https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/edh.cern.ch/fix-absence-overview.user.js
-// @downloadURL  https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/edh.cern.ch/fix-absence-overview.user.js
+// @updateURL    https://raw.githubusercontent.com/7PH/cern-userscripts/master/src/edh.cern.ch/fix-absence-overview.user.js
+// @downloadURL  https://raw.githubusercontent.com/7PH/cern-userscripts/master/src/edh.cern.ch/fix-absence-overview.user.js
 // ==/UserScript==
 
 /**
