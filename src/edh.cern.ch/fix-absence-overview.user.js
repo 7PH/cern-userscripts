@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
-// @version      0.1.0
+// @version      0.1.1
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
 // @match        https://edh.cern.ch/Document/Claims/AbsenceOverview
@@ -149,8 +149,11 @@
             const isFirst = currentDate.getDate() === 1;
             const twoDigits = currentDate.getDate() >= 10;
             const isToday = currentDate.toDateString() === new Date().toDateString();
+            const isFirstDayOfPeriod = currentDate.toISOString() === fromDate.toISOString();
+            const isLastDayOfPeriod = currentDate.toISOString() === toDate.toISOString();
+            const showDayLabel = currentDate.getDate() % 2 !== 0 || currentDate.getDate() < 10 || isFirstDayOfPeriod || isLastDayOfPeriod || isToday;
 
-            if (currentDate.getDate() % 2 !== 0 || currentDate.getDate() < 10 || currentDate.toISOString() === fromDate.toISOString() || currentDate.toISOString() === toDate.toISOString()) {
+            if (showDayLabel) {
                 div.innerText = currentDate.getDate();
                 div.style.width = `${cellWidth}px`;
                 div.style.height = '24px';
@@ -208,7 +211,11 @@
             td.title = `${firstNameFull} ${lastNameFull}`;
             td.innerHTML = `${firstName} ${lastName}`;
             td.width = `${width}px`; // Do not change the width
+        }
+    }
 
+    function addPersonToggleFeature() {
+        for (const td of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
             // Toggle-select single-person view on click
             td.onclick = () => {
                 if (td.dataset.selected === '1') {
@@ -236,6 +243,7 @@
     } else {
         addTableLabels();
         fixPersonNames();
+        addPersonToggleFeature();
     }
 
 })();
