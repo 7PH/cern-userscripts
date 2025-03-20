@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
-// @version      0.1.1
+// @version      0.2.0
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
 // @match        https://edh.cern.ch/Document/Claims/AbsenceOverview
@@ -27,13 +27,53 @@
 
     const SELECTORS = {
         REPORT_TABLE: 'table#ReportBody',
+        REPORT_TABLE_BODY: 'table#ReportBody tbody',
         FROM_DATE_INPUT: 'input#FROMDATE',
         TO_DATE_INPUT: 'input#TODATE',
         SPINNER_BUTTON: '#SpinningThingy',
-        PERSON_NAME: 'td.person-name'
+        PERSON_NAME: 'td.person-name',
+        PERSON_ROW: 'tr.person-overview',
     };
 
+    const LOCAL_STORAGE_KEY = 'edh.cern.ch.AbsenceOverview.userscript';
+
     const LAST_NAME_MAX_LENGTH = 8;
+
+    const FAVORITE_ICON = '✔️';
+
+    /**
+     * @type {Array<string[]>} Favorite users (list of full names)
+     */
+    let favorites = [];
+
+    function isFavorite(name) {
+        return favorites.includes(name);
+    }
+
+    function addToFavorites(name) {
+        if (isFavorite(name)) {
+            return;
+        }
+        favorites.push(name);
+        saveFavorites();
+    }
+
+    function removeFromFavorites(name) {
+        favorites = favorites.filter(n => n !== name);
+        saveFavorites();
+    }
+
+    function saveFavorites() {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(favorites));
+    }
+
+    function loadFavorites() {
+        try {
+            favorites = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) ?? [];
+        } catch (error) {
+            console.error(`Unable to load favorites ${error}`);
+        }
+    }
 
     function getElement(selector) {
         return document.querySelector(selector);
@@ -208,7 +248,7 @@
 
             const [firstName] = firstNameFull.trim().split(' ');
 
-            td.title = `${firstNameFull} ${lastNameFull}`;
+            td.title = `${firstNameFull} ${lastNameFull}`.trim();
             td.innerHTML = `${firstName} ${lastName}`;
             td.width = `${width}px`; // Do not change the width
         }
@@ -218,24 +258,65 @@
         for (const td of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
             // Toggle-select single-person view on click
             td.onclick = () => {
-                if (td.dataset.selected === '1') {
-                    td.dataset.selected = '0';
-                    for (const otherTd of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
-                        otherTd.parentElement.style.display = '';
-                    }
+                const name = td.title;
+                if (isFavorite(name)) {
+                    removeFromFavorites(name);
                 } else {
-                    td.dataset.selected = '1';
-                    for (const otherTd of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
-                        if (td === otherTd) {
-                            continue;
-                        }
-                        otherTd.parentElement.style.display = 'none';
-                    }
+                    addToFavorites(name);
                 }
+                rearrangeFavoriteUsers();
             }
             td.style.cursor = 'pointer';
         }
     }
+
+    function highlightCurrentDayColumn() {
+        const fromDate = getDateFromInput(SELECTORS.FROM_DATE_INPUT);
+        const toDate = getDateFromInput(SELECTORS.TO_DATE_INPUT);
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to midnight
+    
+        // If current date isn't in the selected range, nothing to do
+        if (today < fromDate || today > toDate) {
+            return;
+        }
+    
+        // Calculate the difference in days between fromDate and today
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const colIndex = Math.floor((today - fromDate) / msPerDay);
+
+        // Colorize
+        for (const element of document.querySelectorAll(`.person-overview td:nth-child(2) > *:nth-child(${colIndex + 1})`)) {
+            element.style.borderLeft = '2px solid rgb(227, 150, 122)';
+        }
+    }
+
+    function rearrangeFavoriteUsers() {
+        const rows = document.querySelectorAll(SELECTORS.PERSON_ROW);
+        if (rows.length === 0) {
+            return;
+        }
+        const tbody = document.querySelector(SELECTORS.REPORT_TABLE_BODY);
+        for (const row of rows) {
+            const personNameNode = row.querySelector(SELECTORS.PERSON_NAME);
+            const favorite = isFavorite(personNameNode.title);
+            if (favorite) {
+                if (! personNameNode.innerHTML.includes(FAVORITE_ICON)) {
+                    personNameNode.innerHTML = `${personNameNode.innerHTML} ${FAVORITE_ICON}`;
+                }
+                // Move row to the top, below the label rows
+                tbody.insertBefore(row, tbody.childNodes[2]);
+                personNameNode.style.fontWeight = 'bold';
+            } else if (personNameNode.innerHTML.includes(FAVORITE_ICON)) {
+                personNameNode.innerHTML = personNameNode.innerHTML.replace(` ${FAVORITE_ICON}`, '');
+                personNameNode.style.fontWeight = 'normal';
+            }
+        }
+    }
+    
+
+    loadFavorites();
 
     if (!hasResults()) {
         adjustFromDateToWeekStart();
@@ -244,6 +325,8 @@
         addTableLabels();
         fixPersonNames();
         addPersonToggleFeature();
+        highlightCurrentDayColumn();
+        rearrangeFavoriteUsers();
     }
 
 })();
