@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
-// @version      0.2.0
+// @version      0.3.0
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
 // @match        https://edh.cern.ch/Document/Claims/AbsenceOverview
@@ -127,6 +127,22 @@
         return Math.round((nextMonth - date) / (1000 * 60 * 60 * 24));
     }
 
+    function showOneMoreWeek() {
+        const date = getDateFromInput(SELECTORS.TO_DATE_INPUT);
+        const nextMonthDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
+        const toDateInput = getElement(SELECTORS.TO_DATE_INPUT);
+        toDateInput.value = nextMonthDate.toLocaleDateString('de-DE');
+        triggerSubmission();
+    }
+
+    function showOneMoreMonth() {
+        const date = getDateFromInput(SELECTORS.TO_DATE_INPUT);
+        const nextMonthDate = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+        const toDateInput = getElement(SELECTORS.TO_DATE_INPUT);
+        toDateInput.value = nextMonthDate.toLocaleDateString('de-DE');
+        triggerSubmission();
+    }
+
     function addTableLabels() {
         const table = getElement(SELECTORS.REPORT_TABLE);
         if (!table) {
@@ -177,6 +193,21 @@
             // Move to the 1st of the next month
             currentDate.setMonth(currentDate.getMonth() + 1, 1);
         }
+
+        // Add a label to display 1 more month of data
+        const oneMoreMonth = document.createElement('div');
+        oneMoreMonth.style.display = 'inline-block';
+        oneMoreMonth.style.border = '1px solid gray';
+        oneMoreMonth.style.verticalAlign = 'top';
+        oneMoreMonth.style.width = '100px';
+        oneMoreMonth.style.textAlign = 'center';
+        oneMoreMonth.style.textDecoration = 'underline';
+        oneMoreMonth.style.cursor = 'pointer';
+        oneMoreMonth.innerHTML = '➕ 1 month';
+        oneMoreMonth.title = 'Display one more month of data';
+        oneMoreMonth.onclick = showOneMoreMonth;
+        monthLabelNodes.push(oneMoreMonth);
+
         monthLabelRow.cells[1].innerHTML = '';
         monthLabelRow.cells[1].append(...monthLabelNodes);
 
@@ -221,6 +252,21 @@
             // +1 day
             currentDate.setDate(currentDate.getDate() + 1);
         }
+
+        // Add a label to display 1 more month of data
+        const oneMoreWeek = document.createElement('div');
+        oneMoreWeek.style.display = 'inline-block';
+        oneMoreWeek.style.border = '1px solid gray';
+        oneMoreWeek.style.verticalAlign = 'top';
+        oneMoreWeek.style.width = '100px';
+        oneMoreWeek.style.textAlign = 'center';
+        oneMoreWeek.style.textDecoration = 'underline';
+        oneMoreWeek.style.cursor = 'pointer';
+        oneMoreWeek.innerHTML = '➕ 1 week';
+        oneMoreWeek.title = 'Display one more week of data';
+        oneMoreWeek.onclick = showOneMoreWeek;
+        dayLabelNodes.push(oneMoreWeek);
+
         dayLabelRow.cells[1].innerHTML = '';
         dayLabelRow.cells[1].append(...dayLabelNodes);
 
