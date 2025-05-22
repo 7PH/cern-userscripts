@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
-// @version      0.3.0
+// @version      0.3.1
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
 // @match        https://edh.cern.ch/Document/Claims/AbsenceOverview*
