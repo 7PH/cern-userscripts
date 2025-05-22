@@ -4,7 +4,7 @@
 // @version      0.3.0
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
-// @match        https://edh.cern.ch/Document/Claims/AbsenceOverview
+// @match        https://edh.cern.ch/Document/Claims/AbsenceOverview*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=cern.ch
 // @grant        none
 // @homepage     https://github.com/7PH/cern-userscripts
