@@ -12,18 +12,22 @@ Available userscripts are grouped below based on target-audience. Click on the `
 
 ### CERN-wide
 
-- GitLab
+- EDH
 
-  - Auto-collapse threads on resolve ([Install](https://github.com/7PH/userscript-gitlab-auto-collapse-threads/raw/master/gitlab-auto-collapse-threads.user.js))
-
-- EDH Absence Overview
-
-  - Overall UI improvement ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/edh.cern.ch/fix-absence-overview.user.js))
+  - Absence Overview ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/edh.cern.ch/fix-absence-overview.user.js))
     - Add user-pinning feature
     - Add months and day labels
     - Automatically show data starting from previous Monday on page load
     - Display shortened version of long names
     - Highlight today's date
+
+- GitLab
+
+  - Auto-collapse threads on resolve ([Install](https://github.com/7PH/userscript-gitlab-auto-collapse-threads/raw/master/gitlab-auto-collapse-threads.user.js))
+
+- HireFlix
+
+  - Add "Download" button to submitted interview page ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/hireflix.com/hireflix-download-interview-submissions-button.user.js))
 
 - JIRA
   - Move comment input near the latest comment ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/its.cern.ch/jira-fix-comment-input.user.js))
