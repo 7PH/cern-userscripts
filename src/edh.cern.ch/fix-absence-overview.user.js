@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
-// @version      0.3.1
+// @version      0.3.2
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
 // @match        https://edh.cern.ch/Document/Claims/AbsenceOverview*
@@ -16,10 +16,13 @@
 // ==/UserScript==
 
 /**
- * - Show month labels in the table
+ * - Add month and day label rows to the table
+ * - Highlight today's column and label
  * - Adjust FROMDATE to the start of the week
  * - Trigger submission if no results are shown (never show an empty page)
+ * - Add "➕ 1 week" / "➕ 1 month" buttons to extend the displayed period
  * - Show a shorter version of colleague's names
+ * - Click a name to favorite it (favorites are pinned to the top and persisted)
  */
 
 (function () {
