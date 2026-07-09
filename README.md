@@ -21,10 +21,6 @@ Available userscripts are grouped below based on target-audience. Click on the `
     - Display shortened version of long names
     - Highlight today's date
 
-- GitLab
-
-  - Auto-collapse threads on resolve ([Install](https://github.com/7PH/userscript-gitlab-auto-collapse-threads/raw/master/gitlab-auto-collapse-threads.user.js))
-
 - HireFlix
 
   - Add "Download" button to submitted interview page ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/hireflix.com/hireflix-download-interview-submissions-button.user.js))
