@@ -37,3 +37,4 @@ These userscripts are likely only interesting for you if you are in `SY-EPC-CCS`
 - GitLab
 
   - Add link to the MR Generator from merge request pages ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/gitlab.cern.ch/gitlab-mr-generator-button.user.js))
+  - Add "Assign myself" / "Review myself" buttons to merge request sidebars, working even when someone else is already assigned ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/gitlab.cern.ch/gitlab-assign-myself-button.user.js))
