@@ -30,6 +30,11 @@ Available userscripts are grouped below based on target-audience. Click on the `
   - Click on an issue title in a sprint board will open in a new tab instead of the side panel ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/its.cern.ch/jira-fix-links.user.js))
   - Collapse Kanban board columns by clicking on their header ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/its.cern.ch/jira-collapsible-columns.user.js))
 
+- GitLab
+
+  - Add "Assign myself" / "Review myself" buttons to merge request sidebars ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/gitlab.cern.ch/gitlab-assign-myself-button.user.js))
+ 
+
 ### SY-EPC-CCS specific
 
 These userscripts are likely only interesting for you if you are in `SY-EPC-CCS`.
@@ -37,4 +42,3 @@ These userscripts are likely only interesting for you if you are in `SY-EPC-CCS`
 - GitLab
 
   - Add link to the MR Generator from merge request pages ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/gitlab.cern.ch/gitlab-mr-generator-button.user.js))
-  - Add "Assign myself" / "Review myself" buttons to merge request sidebars, working even when someone else is already assigned ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/gitlab.cern.ch/gitlab-assign-myself-button.user.js))
