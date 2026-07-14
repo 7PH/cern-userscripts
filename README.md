@@ -42,3 +42,11 @@ These userscripts are likely only interesting for you if you are in `SY-EPC-CCS`
 - GitLab
 
   - Add link to the MR Generator from merge request pages ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/gitlab.cern.ch/gitlab-mr-generator-button.user.js))
+
+## Troubleshooting (Chrome, Tampermonkey)
+
+If the userscripts don't work after installing Tampermonkey, try:
+
+- Entering "chrome://extensions/" in your navbar and enabling Developer Mode (top-right)
+- Clicking "Details" on "Tampermonkey" and then checking "Allow Userscripts"
+- Then the userscripts should be enabled
