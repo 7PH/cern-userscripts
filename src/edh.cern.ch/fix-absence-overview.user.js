@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
-// @version      0.3.2
+// @version      0.3.3
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
 // @match        https://edh.cern.ch/Document/Claims/AbsenceOverview*
@@ -21,6 +21,7 @@
  * - Adjust FROMDATE to the start of the week
  * - Trigger submission if no results are shown (never show an empty page)
  * - Add "➕ 1 week" / "➕ 1 month" buttons to extend the displayed period
+ * - Add "➖ 1 week" / "➖ 1 month" buttons to move the start date back
  * - Show a shorter version of colleague's names
  * - Click a name to favorite it (favorites are pinned to the top and persisted)
  */
@@ -130,20 +131,42 @@
         return Math.round((nextMonth - date) / (1000 * 60 * 60 * 24));
     }
 
-    function showOneMoreWeek() {
-        const date = getDateFromInput(SELECTORS.TO_DATE_INPUT);
-        const nextMonthDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
-        const toDateInput = getElement(SELECTORS.TO_DATE_INPUT);
-        toDateInput.value = nextMonthDate.toLocaleDateString('de-DE');
+    function shiftDateInput(selector, computeNewDate) {
+        const date = getDateFromInput(selector);
+        const input = getElement(selector);
+        input.value = computeNewDate(date).toLocaleDateString('de-DE');
         triggerSubmission();
     }
 
+    function showOneMoreWeek() {
+        shiftDateInput(SELECTORS.TO_DATE_INPUT, date => new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7));
+    }
+
     function showOneMoreMonth() {
-        const date = getDateFromInput(SELECTORS.TO_DATE_INPUT);
-        const nextMonthDate = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-        const toDateInput = getElement(SELECTORS.TO_DATE_INPUT);
-        toDateInput.value = nextMonthDate.toLocaleDateString('de-DE');
-        triggerSubmission();
+        shiftDateInput(SELECTORS.TO_DATE_INPUT, date => new Date(date.getFullYear(), date.getMonth() + 1, 1));
+    }
+
+    function showOneLessWeek() {
+        shiftDateInput(SELECTORS.FROM_DATE_INPUT, date => new Date(date.getFullYear(), date.getMonth(), date.getDate() - 7));
+    }
+
+    function showOneLessMonth() {
+        shiftDateInput(SELECTORS.FROM_DATE_INPUT, date => new Date(date.getFullYear(), date.getMonth() - 1, 1));
+    }
+
+    function createPeriodShiftButton(label, title, onClick) {
+        const div = document.createElement('div');
+        div.style.display = 'inline-block';
+        div.style.border = '1px solid gray';
+        div.style.verticalAlign = 'top';
+        div.style.width = '100px';
+        div.style.textAlign = 'center';
+        div.style.textDecoration = 'underline';
+        div.style.cursor = 'pointer';
+        div.innerHTML = label;
+        div.title = title;
+        div.onclick = onClick;
+        return div;
     }
 
     function addTableLabels() {
@@ -159,6 +182,18 @@
 
         const cellWidth = firstRow.cells[1].firstElementChild.width;
 
+        // The label rows' first cell has no explicit width, unlike the name
+        // column cells below it; without matching it, the browser's table
+        // layout algorithm can size that column too narrow once it holds text.
+        const nameCellWidth = getElement(SELECTORS.PERSON_NAME)?.getAttribute('width');
+        const applyNameColumnWidth = (cell) => {
+            if (!nameCellWidth) {
+                return;
+            }
+            cell.setAttribute('width', nameCellWidth);
+            cell.style.width = nameCellWidth;
+        };
+
         const dayLabelRow = firstRow.cloneNode(true);
 
         const fromDate = getDateFromInput(SELECTORS.FROM_DATE_INPUT);
@@ -171,6 +206,14 @@
         // Build month label nodes
         const monthLabelNodes = [];
         const monthLabelRow = firstRow.cloneNode(true);
+
+        // Add a label to move the start date back by 1 month, placed over the name column
+        const oneLessMonth = createPeriodShiftButton('➖ 1 month', 'Move the start date back by one month', showOneLessMonth);
+        monthLabelRow.cells[0].innerHTML = '';
+        monthLabelRow.cells[0].style.textAlign = 'right';
+        monthLabelRow.cells[0].append(oneLessMonth);
+        applyNameColumnWidth(monthLabelRow.cells[0]);
+
         let currentDate = new Date(fromDate);
         while (currentDate < toDate) {
             const div = document.createElement('div');
@@ -198,17 +241,7 @@
         }
 
         // Add a label to display 1 more month of data
-        const oneMoreMonth = document.createElement('div');
-        oneMoreMonth.style.display = 'inline-block';
-        oneMoreMonth.style.border = '1px solid gray';
-        oneMoreMonth.style.verticalAlign = 'top';
-        oneMoreMonth.style.width = '100px';
-        oneMoreMonth.style.textAlign = 'center';
-        oneMoreMonth.style.textDecoration = 'underline';
-        oneMoreMonth.style.cursor = 'pointer';
-        oneMoreMonth.innerHTML = '➕ 1 month';
-        oneMoreMonth.title = 'Display one more month of data';
-        oneMoreMonth.onclick = showOneMoreMonth;
+        const oneMoreMonth = createPeriodShiftButton('➕ 1 month', 'Display one more month of data', showOneMoreMonth);
         monthLabelNodes.push(oneMoreMonth);
 
         monthLabelRow.cells[1].innerHTML = '';
@@ -216,6 +249,14 @@
 
         // Build day label nodes
         const dayLabelNodes = [];
+
+        // Add a label to move the start date back by 1 week, placed over the name column
+        const oneLessWeek = createPeriodShiftButton('➖ 1 week', 'Move the start date back by one week', showOneLessWeek);
+        dayLabelRow.cells[0].innerHTML = '';
+        dayLabelRow.cells[0].style.textAlign = 'right';
+        dayLabelRow.cells[0].append(oneLessWeek);
+        applyNameColumnWidth(dayLabelRow.cells[0]);
+
         currentDate = new Date(fromDate);
         while (currentDate <= toDate) {
             const div = document.createElement('div');
@@ -256,18 +297,8 @@
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        // Add a label to display 1 more month of data
-        const oneMoreWeek = document.createElement('div');
-        oneMoreWeek.style.display = 'inline-block';
-        oneMoreWeek.style.border = '1px solid gray';
-        oneMoreWeek.style.verticalAlign = 'top';
-        oneMoreWeek.style.width = '100px';
-        oneMoreWeek.style.textAlign = 'center';
-        oneMoreWeek.style.textDecoration = 'underline';
-        oneMoreWeek.style.cursor = 'pointer';
-        oneMoreWeek.innerHTML = '➕ 1 week';
-        oneMoreWeek.title = 'Display one more week of data';
-        oneMoreWeek.onclick = showOneMoreWeek;
+        // Add a label to display 1 more week of data
+        const oneMoreWeek = createPeriodShiftButton('➕ 1 week', 'Display one more week of data', showOneMoreWeek);
         dayLabelNodes.push(oneMoreWeek);
 
         dayLabelRow.cells[1].innerHTML = '';
@@ -322,15 +353,15 @@
     function highlightCurrentDayColumn() {
         const fromDate = getDateFromInput(SELECTORS.FROM_DATE_INPUT);
         const toDate = getDateFromInput(SELECTORS.TO_DATE_INPUT);
-        
+
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Reset time to midnight
-    
+
         // If current date isn't in the selected range, nothing to do
         if (today < fromDate || today > toDate) {
             return;
         }
-    
+
         // Calculate the difference in days between fromDate and today
         const msPerDay = 24 * 60 * 60 * 1000;
         const colIndex = Math.floor((today - fromDate) / msPerDay);
@@ -363,7 +394,7 @@
             }
         }
     }
-    
+
 
     loadFavorites();
 
