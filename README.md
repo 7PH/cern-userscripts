@@ -27,6 +27,18 @@ Available userscripts are grouped below based on target-audience. Click on the `
 
     </details>
 
+  - Leave Request - Calendar selection ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/edh.cern.ch/fix-leave-request.user.js))
+    - Add a big half-day calendar to the Absence Request (LVRQ) form
+    - Paint Annual Leave / Teleworking on half-days directly on the calendar
+    - Keep the calendar and the "Absence periods" rows in two-way sync
+    - Apply the selection to the form automatically across page reloads
+    <details>
+      <summary>Screenshot</summary>
+
+      ![EDH Leave Request calendar selection](assets/edh-leave-request-calendar.png)
+
+    </details>
+
 - HireFlix
 
   - Add "Download" button to submitted interview page ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/hireflix.com/hireflix-download-interview-submissions-button.user.js))
