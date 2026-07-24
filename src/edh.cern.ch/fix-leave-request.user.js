@@ -4,7 +4,7 @@
 // @version      1.2.0
 // @description  Adds a big half-day calendar to the EDH Absence Request (LVRQ) form. Paint Annual Leave / Teleworking on half-days; the calendar is kept in two-way sync with the "Absence periods" rows.
 // @author       Dariusz Zielinski
-// @match        https://edh.cern.ch/*
+// @match        https://edh.cern.ch/Document/Claims/LeaveRequest
 // @noframes
 // @grant        none
 // @run-at       document-idle
