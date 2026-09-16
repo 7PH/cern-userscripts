@@ -20,6 +20,7 @@ Available userscripts are grouped below based on target-audience. Click on the `
     - Automatically show data starting from previous Monday on page load
     - Display shortened version of long names
     - Highlight today's date
+    - Scroll the table horizontally instead of overflowing the page
     <details>
       <summary>Screenshot</summary>
 
@@ -98,3 +99,4 @@ If the userscripts don't work after installing Tampermonkey, try:
 - Entering "chrome://extensions/" in your navbar and enabling Developer Mode (top-right)
 - Clicking "Details" on "Tampermonkey" and then checking "Allow Userscripts"
 - Then the userscripts should be enabled
+

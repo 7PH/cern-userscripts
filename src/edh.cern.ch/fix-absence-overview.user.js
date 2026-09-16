@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CERN EDH Fix Absence Overview
 // @namespace    https://github.com/7PH
-// @version      0.3.3
+// @version      0.4.0
 // @description  Fixes issues with the AbsenceOverview page.
 // @author       7PH (https://github.com/7PH)
 // @match        https://edh.cern.ch/Document/Claims/AbsenceOverview*
@@ -22,6 +22,8 @@
  * - Trigger submission if no results are shown (never show an empty page)
  * - Add "➕ 1 week" / "➕ 1 month" buttons to extend the displayed period
  * - Add "➖ 1 week" / "➖ 1 month" buttons to move the start date back
+ * - Add preset period buttons next to the date inputs (this month, current year, last 12 months)
+ * - Scroll the table horizontally instead of overflowing the page, keeping the name column in view
  * - Show a shorter version of colleague's names
  * - Click a name to favorite it (favorites are pinned to the top and persisted)
  */
@@ -116,7 +118,7 @@
             return;
         }
 
-        fromDateInput.value = getWeekStart(selectedDate).toLocaleDateString('de-DE');
+        setDateInput(SELECTORS.FROM_DATE_INPUT, getWeekStart(selectedDate));
     }
 
     function triggerSubmission() {
@@ -131,10 +133,12 @@
         return Math.round((nextMonth - date) / (1000 * 60 * 60 * 24));
     }
 
+    function setDateInput(selector, date) {
+        getElement(selector).value = date.toLocaleDateString('de-DE');
+    }
+
     function shiftDateInput(selector, computeNewDate) {
-        const date = getDateFromInput(selector);
-        const input = getElement(selector);
-        input.value = computeNewDate(date).toLocaleDateString('de-DE');
+        setDateInput(selector, computeNewDate(getDateFromInput(selector)));
         triggerSubmission();
     }
 
@@ -154,19 +158,104 @@
         shiftDateInput(SELECTORS.FROM_DATE_INPUT, date => new Date(date.getFullYear(), date.getMonth() - 1, 1));
     }
 
-    function createPeriodShiftButton(label, title, onClick) {
+    function setDateRange(fromDate, toDate) {
+        setDateInput(SELECTORS.FROM_DATE_INPUT, fromDate);
+        setDateInput(SELECTORS.TO_DATE_INPUT, toDate);
+        triggerSubmission();
+    }
+
+    function getPresetPeriods() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        return [
+            {
+                label: '📅 This month',
+                title: 'Show the current month',
+                from: new Date(year, month, 1),
+                to: new Date(year, month + 1, 0),
+            },
+            {
+                label: `📅 ${year}`,
+                title: `Show the whole of ${year}`,
+                from: new Date(year, 0, 1),
+                to: new Date(year, 11, 31),
+            },
+            {
+                label: '📅 Last 12 months',
+                title: 'Show the last 12 months, up to today',
+                from: new Date(year - 1, month, today.getDate()),
+                to: today,
+            },
+        ];
+    }
+
+    function createButton(label, title, onClick, styles = {}) {
         const div = document.createElement('div');
-        div.style.display = 'inline-block';
-        div.style.border = '1px solid gray';
-        div.style.verticalAlign = 'top';
-        div.style.width = '100px';
-        div.style.textAlign = 'center';
-        div.style.textDecoration = 'underline';
-        div.style.cursor = 'pointer';
+        Object.assign(div.style, {
+            display: 'inline-block',
+            border: '1px solid gray',
+            verticalAlign: 'top',
+            width: '100px',
+            textAlign: 'center',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+        }, styles);
         div.innerHTML = label;
         div.title = title;
         div.onclick = onClick;
         return div;
+    }
+
+    function addPresetPeriodButtons() {
+        const dateCell = getElement(SELECTORS.TO_DATE_INPUT)?.parentElement;
+        if (!dateCell) {
+            return;
+        }
+
+        const container = dateCell.nextElementSibling ?? dateCell;
+        for (const { label, title, from, to } of getPresetPeriods()) {
+            container.append(createButton(label, title, () => setDateRange(from, to), {
+                width: 'auto',
+                padding: '0 6px',
+                marginRight: '4px',
+            }));
+        }
+    }
+
+    // Ancestor table cells grow with their content, so the wrapper only scrolls once its width is pinned.
+    function fitToViewport(wrapper) {
+        wrapper.style.width = `${document.documentElement.clientWidth - wrapper.getBoundingClientRect().left}px`;
+
+        // Ancestor padding sits outside that measure
+        const overflow = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+        if (overflow > 0) {
+            wrapper.style.width = `${wrapper.clientWidth - overflow}px`;
+        }
+    }
+
+    function makeTableScrollable() {
+        const table = getElement(SELECTORS.REPORT_TABLE);
+        if (!table) {
+            return;
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.style.overflowX = 'auto';
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.append(table);
+
+        fitToViewport(wrapper);
+        window.addEventListener('resize', () => fitToViewport(wrapper));
+
+        // Keep the names readable while the timeline scrolls
+        for (const row of table.rows) {
+            const cell = row.cells[0];
+            cell.style.position = 'sticky';
+            cell.style.left = '0';
+            cell.style.zIndex = '1';
+            cell.style.backgroundColor = 'white';
+        }
     }
 
     function addTableLabels() {
@@ -182,18 +271,6 @@
 
         const cellWidth = firstRow.cells[1].firstElementChild.width;
 
-        // The label rows' first cell has no explicit width, unlike the name
-        // column cells below it; without matching it, the browser's table
-        // layout algorithm can size that column too narrow once it holds text.
-        const nameCellWidth = getElement(SELECTORS.PERSON_NAME)?.getAttribute('width');
-        const applyNameColumnWidth = (cell) => {
-            if (!nameCellWidth) {
-                return;
-            }
-            cell.setAttribute('width', nameCellWidth);
-            cell.style.width = nameCellWidth;
-        };
-
         const dayLabelRow = firstRow.cloneNode(true);
 
         const fromDate = getDateFromInput(SELECTORS.FROM_DATE_INPUT);
@@ -208,11 +285,10 @@
         const monthLabelRow = firstRow.cloneNode(true);
 
         // Add a label to move the start date back by 1 month, placed over the name column
-        const oneLessMonth = createPeriodShiftButton('➖ 1 month', 'Move the start date back by one month', showOneLessMonth);
+        const oneLessMonth = createButton('➖ 1 month', 'Move the start date back by one month', showOneLessMonth);
         monthLabelRow.cells[0].innerHTML = '';
         monthLabelRow.cells[0].style.textAlign = 'right';
         monthLabelRow.cells[0].append(oneLessMonth);
-        applyNameColumnWidth(monthLabelRow.cells[0]);
 
         let currentDate = new Date(fromDate);
         while (currentDate < toDate) {
@@ -241,7 +317,7 @@
         }
 
         // Add a label to display 1 more month of data
-        const oneMoreMonth = createPeriodShiftButton('➕ 1 month', 'Display one more month of data', showOneMoreMonth);
+        const oneMoreMonth = createButton('➕ 1 month', 'Display one more month of data', showOneMoreMonth);
         monthLabelNodes.push(oneMoreMonth);
 
         monthLabelRow.cells[1].innerHTML = '';
@@ -251,11 +327,10 @@
         const dayLabelNodes = [];
 
         // Add a label to move the start date back by 1 week, placed over the name column
-        const oneLessWeek = createPeriodShiftButton('➖ 1 week', 'Move the start date back by one week', showOneLessWeek);
+        const oneLessWeek = createButton('➖ 1 week', 'Move the start date back by one week', showOneLessWeek);
         dayLabelRow.cells[0].innerHTML = '';
         dayLabelRow.cells[0].style.textAlign = 'right';
         dayLabelRow.cells[0].append(oneLessWeek);
-        applyNameColumnWidth(dayLabelRow.cells[0]);
 
         currentDate = new Date(fromDate);
         while (currentDate <= toDate) {
@@ -298,7 +373,7 @@
         }
 
         // Add a label to display 1 more week of data
-        const oneMoreWeek = createPeriodShiftButton('➕ 1 week', 'Display one more week of data', showOneMoreWeek);
+        const oneMoreWeek = createButton('➕ 1 week', 'Display one more week of data', showOneMoreWeek);
         dayLabelNodes.push(oneMoreWeek);
 
         dayLabelRow.cells[1].innerHTML = '';
@@ -311,9 +386,6 @@
     }
 
     function fixPersonNames() {
-        const anyTd = document.querySelector(SELECTORS.PERSON_NAME);
-        const width = anyTd.clientWidth;
-
         for (const td of document.querySelectorAll(SELECTORS.PERSON_NAME)) {
             const [lastNameFull, firstNameFull] = td.innerText.trim().split(',');
 
@@ -330,7 +402,7 @@
 
             td.title = `${firstNameFull} ${lastNameFull}`.trim();
             td.innerHTML = `${firstName} ${lastName}`;
-            td.width = `${width}px`; // Do not change the width
+            td.removeAttribute('width'); // EDH sized the column for the full names
         }
     }
 
@@ -386,7 +458,7 @@
                     personNameNode.innerHTML = `${personNameNode.innerHTML} ${FAVORITE_ICON}`;
                 }
                 // Move row to the top, below the label rows
-                tbody.insertBefore(row, tbody.childNodes[2]);
+                tbody.insertBefore(row, tbody.querySelector(SELECTORS.PERSON_ROW));
                 personNameNode.style.fontWeight = 'bold';
             } else if (personNameNode.innerHTML.includes(FAVORITE_ICON)) {
                 personNameNode.innerHTML = personNameNode.innerHTML.replace(` ${FAVORITE_ICON}`, '');
@@ -402,11 +474,13 @@
         adjustFromDateToWeekStart();
         triggerSubmission();
     } else {
+        addPresetPeriodButtons();
         addTableLabels();
         fixPersonNames();
         addPersonToggleFeature();
         highlightCurrentDayColumn();
         rearrangeFavoriteUsers();
+        makeTableScrollable();
     }
 
 })();
