@@ -92,6 +92,10 @@ These userscripts are likely only interesting for you if you are in `SY-EPC-CCS`
 
     </details>
 
+  - Add "Ready for review" button to merge requests of fgc, fgc-next, fgc-web, kt-web, fgc-prod and ccs-public-html ([Install](https://github.com/7PH/cern-userscripts/raw/refs/heads/master/src/gitlab.cern.ch/gitlab-ready-for-review-button.user.js))
+    - Adds the `epctoolsreview` bot as a reviewer
+    - Once added, the button turns into "Unready" and removes it again
+
 ## Troubleshooting (Chrome, Tampermonkey)
 
 If the userscripts don't work after installing Tampermonkey, try:
