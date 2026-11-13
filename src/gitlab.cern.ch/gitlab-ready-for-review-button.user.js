@@ -9,6 +9,7 @@
 // @match        https://gitlab.cern.ch/epc/ccs/tools/fgc-web/-/merge_requests/*
 // @match        https://gitlab.cern.ch/epc/ccs/tools/kt-web/-/merge_requests/*
 // @match        https://gitlab.cern.ch/epc/ccs/data/fgc-prod/-/merge_requests/*
+// @match        https://gitlab.cern.ch/epc/ccs/data/ccs-public-html/-/merge_requests/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=cern.ch
 // @grant        none
 // @run-at       document-idle
